@@ -5,8 +5,8 @@ from dateutil.relativedelta import relativedelta
 def get_dates():
    #today = pd.datetime.today()
    today = pd.to_datetime("today")
-   date_range_max = today - relativedelta(years = 1) + relativedelta(months = 1)
-   date_range_min = today - relativedelta(years = 1) - relativedelta(months = 1)
+   date_range_max = today - relativedelta(years = 1) + relativedelta(days = 14)
+   date_range_min = today - relativedelta(years = 1) - relativedelta(days = 14)
    date_range = [date_range_min, date_range_max]
    return(date_range)
 
@@ -78,7 +78,8 @@ def get_in_season(data, province, date_range):
    data = data.loc[(data['region'] == region)]
    data['produce_name'] = data['CmdtyEn_PrdtAn'] + " " + data['VrtyEn_VrteAn']
    data['count'] = data.groupby(by = 'produce_name')['produce_name'].transform('count')
-   in_season = pd.DataFrame(data.head(10)['produce_name'])['produce_name'].tolist()
+   data = data.sort_values(by=['count'], ascending = False)
+   in_season = list(dict.fromkeys(zip(data.CmdtyEn_PrdtAn, data.VrtyEn_VrteAn)))
 
    print(in_season)
    return(in_season)
@@ -88,4 +89,6 @@ def in_season_main(province):
    backlog_date_range = get_dates()
    in_season = get_in_season(data, province, backlog_date_range)
 
-in_season_main("Alberta")
+
+##TO RUN:
+#in_season_main("Alberta")
