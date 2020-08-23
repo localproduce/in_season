@@ -79,16 +79,22 @@ def get_in_season(data, province, date_range):
    data['produce_name'] = data['CmdtyEn_PrdtAn'] + " " + data['VrtyEn_VrteAn']
    data['count'] = data.groupby(by = 'produce_name')['produce_name'].transform('count')
    data = data.sort_values(by=['count'], ascending = False)
-   in_season = list(dict.fromkeys(zip(data.CmdtyEn_PrdtAn, data.VrtyEn_VrteAn)))
+   data = pd.DataFrame(data.drop_duplicates(subset = ['produce_name'], keep = 'last'))
+   in_season = pd.DataFrame(data[['CmdtyEn_PrdtAn', 'VrtyEn_VrteAn']])
+   in_season.reset_index(drop = True, inplace = True)
+   #in_season = list(dict.fromkeys(zip(data.CmdtyEn_PrdtAn, data.VrtyEn_VrteAn)))
 
-   print(in_season)
+   #print(in_season)
    return(in_season)
 
 def in_season_main(province):
    data = pd.read_csv('Imported Data.csv')
    backlog_date_range = get_dates()
    in_season = get_in_season(data, province, backlog_date_range)
-
+   print(in_season)
+   in_season = in_season.to_json("result.json", orient="index")
+   print(in_season)
+   return(in_season)
 
 ##TO RUN:
-#in_season_main("Alberta")
+in_season_main("Alberta")
